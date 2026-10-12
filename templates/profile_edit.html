@@ -1,24 +1,66 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}Edit Profile | Friday{% endblock %}
+{% block title %}Edit profile | Friday{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="profile-edit-container">
-    <h1>Edit Profile</h1>
-    
-    <form method="post" enctype="multipart/form-data" class="profile-form">
-      {% csrf_token %}
-      
-      <!-- Render the forms inside paragraphs -->
-      {{ uform.as_p }}
-      {{ pform.as_p }}
-      
-      <div class="profile-form-actions">
-        <a href="{% url 'profile' %}" class="btn btn-outline" style="margin-right: 12px;">Cancel</a>
-        <button type="submit" class="btn btn-dark">Save Changes</button>
-      </div>
-    </form>
+<section class="profile-section">
+  <div class="container">
+    <div class="profile-card">
+      <h1 class="profile-name" style="text-align:center;margin-bottom:24px;">Edit Profile</h1>
+
+      <form method="post" enctype="multipart/form-data" action="{% url 'profile_edit' %}">
+        {% csrf_token %}
+
+        {{ uform.non_field_errors }}
+        {{ pform.non_field_errors }}
+
+        <p>
+          <label for="{{ uform.first_name.id_for_label }}">First name</label><br>
+          {{ uform.first_name }}
+          {{ uform.first_name.errors }}
+        </p>
+
+        <p>
+          <label for="{{ uform.last_name.id_for_label }}">Last name</label><br>
+          {{ uform.last_name }}
+          {{ uform.last_name.errors }}
+        </p>
+
+        <p>
+          <label for="{{ pform.bio.id_for_label }}">Bio</label><br>
+          {{ pform.bio }}
+          {{ pform.bio.errors }}
+        </p>
+
+        <p>
+          <label for="{{ pform.avatar.id_for_label }}">Profile picture</label><br>
+          {{ pform.avatar }}
+          {{ pform.avatar.errors }}
+        </p>
+
+        <p>
+          <label for="{{ pform.github_url.id_for_label }}">GitHub link</label><br>
+          {{ pform.github_url }}
+          {{ pform.github_url.errors }}
+        </p>
+
+        <p>
+          <label for="{{ pform.tech_stack.id_for_label }}">Tech stack (comma separated)</label><br>
+          {{ pform.tech_stack }}
+          {{ pform.tech_stack.errors }}
+        </p>
+
+        <div class="profile-actions">
+          <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
+          <a href="{% url 'try' %}" class="btn btn-dark">Save Changes</a>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

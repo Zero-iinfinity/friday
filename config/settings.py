@@ -136,3 +136,9 @@ LOGOUT_REDIRECT_URL = "home"
 
 AVATAR_ROOT = BASE_DIR / "avatars"
 AVATAR_URL = "/avatars/"
+
+# settings.py
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://footsore-commodity-stock.ngrok-free.dev',
+]

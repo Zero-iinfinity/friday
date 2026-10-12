@@ -100,7 +100,6 @@ def try_page(request):
 
 
 @require_POST
-@login_required
 def try_generate(request):
     try:
         body = json.loads(request.body or "{}")

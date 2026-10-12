@@ -5,9 +5,11 @@
 
 .story-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(32px, 6vw, 96px); align-items: center; }
 .story-media {
-  aspect-ratio: 1 / 1; border-radius: var(--radius-card);
-  background: linear-gradient(145deg, #0b0b0b, #5b5b5b);
-  display: grid; place-items: center; color: #fff; font-size: clamp(6rem, 18vw, 12rem); font-weight: 700; letter-spacing: -.06em;
+  border-radius: var(--radius-card);
+  width: 100%;
+  max-height: 1000px; /* Limits how tall the image can get on large screens */
+  object-fit: cover; /* Ensures the image fills the space neatly */
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15); 
 }
 .story-grid .section-lead + .section-lead { margin-top: 14px; }
 
