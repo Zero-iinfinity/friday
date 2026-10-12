@@ -1,0 +1,234 @@
+/* ==========================================================
+   Friday — profile.css
+   User profile page styles
+   ========================================================== */
+
+.profile-section {
+  padding: clamp(48px, 8vw, 100px) 0;
+  min-height: calc(100vh - var(--header-h));
+  background: var(--bg);
+}
+
+.profile-card {
+  background: var(--bg-2);
+  border-radius: var(--radius-card);
+  padding: clamp(40px, 6vw, 80px);
+  border: 1px solid var(--line);
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ---------- Profile Header ---------- */
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(24px, 5vw, 40px);
+  margin-bottom: clamp(40px, 6vw, 60px);
+  padding-bottom: clamp(40px, 6vw, 60px);
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-image-wrapper {
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: clamp(120px, 25vw, 160px);
+  height: clamp(120px, 25vw, 160px);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s var(--ease);
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
+}
+
+.profile-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.profile-name {
+  font-size: clamp(1.75rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.profile-handle {
+  font-size: 1.05rem;
+  color: var(--ink-2);
+  font-weight: 500;
+  margin: 0;
+}
+
+.profile-bio {
+  font-size: 1rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin-top: 8px;
+  max-width: 500px;
+}
+
+/* ---------- Stats Grid ---------- */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 24px;
+  margin-bottom: clamp(32px, 5vw, 48px);
+  padding: clamp(32px, 5vw, 48px) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-value {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ---------- Actions ---------- */
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: clamp(32px, 5vw, 48px);
+  padding-bottom: clamp(32px, 5vw, 48px);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.profile-actions .btn {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* ---------- Tech Stack ---------- */
+.profile-tech {
+  text-align: center;
+}
+
+.tech-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.tech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.tech-chips .chip {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  color: var(--ink-2);
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  transition: all 0.2s var(--ease);
+}
+
+.tech-chips .chip:hover {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 32px 24px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .profile-info {
+    align-items: center;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+  }
+
+  .profile-actions .btn {
+    width: 100%;
+  }
+
+  .profile-bio {
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 24px 16px;
+  }
+
+  .profile-name {
+    font-size: 1.5rem;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 24px 0;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .tech-chips {
+    gap: 8px;
+  }
+
+  .tech-chips .chip {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}

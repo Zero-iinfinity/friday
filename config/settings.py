@@ -133,3 +133,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "try"
 LOGOUT_REDIRECT_URL = "home"
+
+AVATAR_ROOT = BASE_DIR / "avatars"
+AVATAR_URL = "/avatars/"

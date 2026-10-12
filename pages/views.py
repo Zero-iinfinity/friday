@@ -4,11 +4,12 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import render, redirect
+from .forms import UserNamesForm, ProfileForm
+from .models import Profile
 from . import engine
 
 FEATURES = [
@@ -80,6 +81,8 @@ def features(request):
 def examples(request):
     return render(request, "examples.html", {"examples": EXAMPLES})
 
+def profile(request):
+    return render(request,"profile.html",)
 
 def contact(request):
     if request.method == "POST":
@@ -153,3 +156,20 @@ def signup_view(request):
 def logout_view(request):
     logout(request)
     return redirect("home")
+
+@login_required
+def profile(request):
+    p, _ = Profile.objects.get_or_create(user=request.user)
+    return render(request, "profile.html", {"profile": p})
+
+
+@login_required
+def profile_edit(request):
+    p, _ = Profile.objects.get_or_create(user=request.user)
+    uform = UserNamesForm(request.POST or None, instance=request.user)
+    pform = ProfileForm(request.POST or None, request.FILES or None, instance=p)
+    if request.method == "POST" and uform.is_valid() and pform.is_valid():
+        uform.save()
+        pform.save()
+        return redirect("profile")
+    return render(request, "profile_edit.html", {"uform": uform, "pform": pform})
