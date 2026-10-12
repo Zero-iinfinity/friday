@@ -1,0 +1,177 @@
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 90, in build
+    raise ValueError("Geometry Validation failed. See logs above.")
+ValueError: Geometry Validation failed. See logs above.
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 36, in build
+    raise ValueError("JSON Validation failed. See logs above.")
+ValueError: JSON Validation failed. See logs above.
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 67, in build
+    shapes[name] = method_to_call(**kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\cad\features.py", line 32, in chamfer
+    raise IndexError(f"Edge index {i} is out of range. Shape only has {len(all_edges)} edges.")
+IndexError: Edge index 6 is out of range. Shape only has 6 edges.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 72, in build
+    raise ValueError(f"FreeCAD kernel failed to build operation '{name}' ({op_type}): {e}")
+ValueError: FreeCAD kernel failed to build operation 'inner_chamfer' (chamfer): Edge index 6 is out of range. Shape only has 6 edges.
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 36, in build
+    raise ValueError("JSON Validation failed. See logs above.")
+ValueError: JSON Validation failed. See logs above.
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 36, in build
+    raise ValueError("JSON Validation failed. See logs above.")
+ValueError: JSON Validation failed. See logs above.
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 58, in build
+    shapes[name] = func(**kwargs)
+                   ^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\cad\feature_creation.py", line 48, in extrude
+    return CADShape(toFace(profile).extrude(v))
+                    ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\cad\feature_creation.py", line 38, in toFace
+    raise ValueError("profile is not closed")
+ValueError: profile is not closed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\build_all.py", line 38, in <module>
+    shapes = build(str(tmp))
+             ^^^^^^^^^^^^^^^
+  File "C:\Users\Vikas Dubey\Desktop\projects\Core\friday\praser\builder.py", line 72, in build
+    raise ValueError(f"FreeCAD kernel failed to build operation '{name}' ({op_type}): {e}")
+ValueError: FreeCAD kernel failed to build operation 'plate' (extrude): profile is not closed
+BUILD OK   100x10x10 bar with spherical cut and X-mirror.json -> ['base', 'sphere', 'cut_sphere', 'mirrored']
+BUILD OK   100x50x10 box with through-hole at [25,25,0].json -> ['base', 'hole1']
+BUILD OK   10x10x10 box with linear pattern.json -> ['base', 'pattern']
+BUILD OK   20mm cube with 2mm fillet.json -> ['base', 'base_fillet']
+BUILD OK   20x20x20 box and separate cylinder.json -> ['box', 'cylinder']
+BUILD OK   30x10 rectangle extruded and linear patterned.json -> ['extruded_rect', 'pattern_row']
+BUILD OK   40x40x40 box with corner cutout.json -> ['outer_box', 'cut_box', 'cutout']
+BUILD OK   50x30x20 mm box at origin.json -> ['box']
+BUILD OK   50x50x10 plate with 4 mm fillet.json -> ['base', 'base_r']
+BUILD OK   50x50x5 plate with cylinder hole.json -> ['plate', 'hole_cyl', 'plate_with_hole']
+BUILD OK   60x60 plate with 4mm hole at [10,10,0].json -> ['plate_base', 'plate_hole']
+BUILD OK   Base box with extruded hole.json -> ['base', 'cylinder', 'drilled_hole']
+BUILD OK   Base plate with center hole.json -> ['base', 'hole_profile', 'plate_with_hole']
+BUILD OK   Base profile and vertical pillar union with fillet.json -> ['base_body', 'pillar_body', 'unioned', 'filleted']
+BUILD OK   Box 100x100x5 at [10,10,0].json -> ['base_box']
+--- GEOMETRY VALIDATION FAILED ---
+  - filleted: FreeCAD reports the resulting geometry as invalid
+  - op[3] fillet: FreeCAD produced an invalid shape after fillet
+BUILD FAIL Box and Cylinder Union with Fillet.json
+BUILD OK   Box and mirrored copy.json -> ['base', 'mirrored']
+BUILD OK   Box translated along X axis.json -> ['base', 'translated']
+BUILD OK   Box with centered cylinder union.json -> ['box', 'cylinder', 'unioned']
+BUILD OK   Box with circular pattern around Z.json -> ['base', 'pattern']
+BUILD OK   Box with cut cylinder.json -> ['base', 'cyl', 'cut_cyl']
+BUILD OK   Box with fillet and circular pattern.json -> ['base', 'base_r', 'pattern_ring']
+BUILD OK   Box with hole and linear pattern.json -> ['base', 'drilled', 'row']
+BUILD OK   Central cylinder with patterned cutouts.json -> ['central_cylinder', 'cut_extrude', 'cut_pattern', 'final_part']
+--- JSON VALIDATION FAILED ---
+  - op[2] distanceX 'pos': geometry 0 is a circle; allowed positions: (3,)
+BUILD FAIL Circle at [20,0,0] with distanceX constraint and extrusion.json
+BUILD OK   Circle extrusion along diagonal.json -> ['extruded_cylinder']
+BUILD OK   Circle extrusion with negative height.json -> ['extruded']
+GEOMETRY WARNING: op[6] cut: cut tool only touches target or has zero-volume intersection; no meaningful material may be removed
+BUILD OK   Circle sketch extruded with hole.json -> ['cylinder', 'hole_profile', 'drilled']
+BUILD OK   Circle sketch with radius constraint and extrusion.json -> ['extruded']
+BUILD OK   Coin with extruded circle.json -> ['coin']
+BUILD OK   Complex gear blank with perimeter holes.json -> ['blank', 'tooth_cutter', 'teeth']
+BUILD OK   Cone and Sphere.json -> ['cone', 'sphere']
+BUILD OK   Cone at [5,5,0].json -> ['cone']
+BUILD OK   Cone rotated 90 degrees around X axis.json -> ['cone', 'cone_rotated']
+BUILD OK   Cone with bottom radius 10mm, top radius 0mm, height 30mm.json -> ['cone']
+BUILD OK   Cone with circular pattern around Z.json -> ['cone_base', 'cone_ring']
+BUILD OK   Cone with translation and fillet.json -> ['cone', 'cone_translated', 'cone_fillet']
+BUILD OK   Constrained rectangle sketch extruded.json -> ['plate']
+BUILD OK   Create a 10mm cube.json -> ['cube']
+BUILD OK   Cylinder array union plate.json -> ['plate', 'cyl', 'cyl_array', 'final']
+BUILD OK   Cylinder at [0,0,10].json -> ['cylinder_1']
+BUILD OK   Cylinder linear pattern along Y.json -> ['peg', 'row']
+BUILD OK   Cylinder moved to new position.json -> ['cyl', 'cyl_moved']
+BUILD OK   Cylinder scaled and chamfered.json -> ['cyl', 'scaled', 'chamfered']
+BUILD OK   Cylinder with 1mm chamfer.json -> ['cylinder', 'chamfered']
+BUILD OK   Cylinder with centered hole.json -> ['cylinder', 'hole']
+BUILD FAIL Cylinder with internal tube and chamfered edges.json
+BUILD OK   Cylinder with radius 5mm and height 20mm.json -> ['cylinder_1']
+BUILD OK   Diamond extrusion.json -> ['diamond_solid']
+BUILD OK   Empty sketch with horizontal line fixed at 50mm.json -> []
+--- JSON VALIDATION FAILED ---
+  - op[6] extrude 'profile': sketch 'poly5' is not a closed loop: endpoints [(0, 0), (0, 10)] are not shared by exactly two lines
+BUILD FAIL Extruded 5-sided polygon.json
+BUILD OK   Extruded profile with central spherical hole.json -> ['extruded', 'sphere_primitive', 'cut_hole']
+BUILD OK   Flat disc cylinder 40mm radius 2mm height.json -> ['disc']
+BUILD OK   Half-circle to D-shape via revolve.json -> ['d_shape']
+--- JSON VALIDATION FAILED ---
+  - op[6] add_line: duplicate name 'l4' (the later result would silently overwrite the earlier one)
+  - op[10] add_line: start and end are the same point (zero-length line)
+  - op[11] add_line: start and end are the same point (zero-length line)
+  - op[19] coincident: duplicate name 'c4' (the later result would silently overwrite the earlier one)
+  - op[21] coincident: duplicate name 'c5' (the later result would silently overwrite the earlier one)
+  - op[24] coincident: duplicate name 'c7' (the later result would silently overwrite the earlier one)
+  - op[25] extrude 'profile': sketch 'ibeam_sketch' is not a closed loop: endpoints [(0, 0), (100, 0), (100, 20)] are not shared by exactly two lines
+BUILD FAIL I-behavior profile.json
+BUILD OK   Intersection of 30x30x30 box and 20-radius sphere.json -> ['box', 'sphere', 'intersection']
+BUILD OK   L-shaped extrusion.json -> ['l_extrude']
+BUILD OK   Line with 45-degree angle constraint.json -> []
+BUILD OK   Mirrored Box.json -> ['base', 'mirrored']
+BUILD OK   Peg with circular pattern.json -> ['peg', 'peg_ring']
+BUILD OK   Pin and base union.json -> ['pin', 'base', 'joined']
+BUILD OK   Plate with hole and chamfer.json -> ['base', 'hole', 'drilled_plate', 'chamfered_edges']
+BUILD OK   Rectangle extrusion with fillet.json -> ['base', 'rounded']
+BUILD OK   Rectangle plate with fillets and linear pattern.json -> ['plate', 'plate_fillet', 'plate_row']
+BUILD OK   Rectangle sketch and extrusion.json -> ['plate']
+BUILD OK   Rectangle with construction circle extruded.json -> ['plate']
+BUILD OK   Revolved pipe with chamfered edges.json -> ['pipe', 'chamfered']
+BUILD OK   Revolved rectangle tube.json -> ['rect_profile']
+BUILD OK   Revolved washer from rectangle.json -> ['washer']
+BUILD OK   Rotated and Filleted Box.json -> ['base', 'rotated', 'filt']
+BUILD OK   Rotated box.json -> ['base', 'rotated']
+BUILD OK   Scale a translated sphere.json -> ['sphere_base', 'sphere_translated', 'sphere_scaled']
+BUILD OK   Scaled sphere.json -> ['ball', 'scaled_ball']
+BUILD OK   Sketch circle and extrude.json -> ['extruded']
+BUILD OK   Sphere and Cone.json -> ['sphere', 'cone']
+BUILD OK   Sphere at [10, 20, 30].json -> ['sphere_1']
+BUILD OK   Sphere with central cylinder.json -> ['sphere', 'cylinder', 'combined']
+BUILD OK   Sphere with linear pattern along Z.json -> ['base_sphere', 'sphere_row']
+BUILD OK   Sphere with radius 10 mm.json -> ['sphere_10mm']
+BUILD OK   Square plate mirrored across Z.json -> ['plate', 'mirrored_plate']
+BUILD OK   Square profile extrusion.json -> ['square_extrude']
+BUILD OK   Square sketch extruded and scaled.json -> ['square_extrude', 'scaled_solid']
+BUILD FAIL Square sketch extruded.json
+BUILD OK   Thick torus with major radius 15 and minor radius 10.json -> ['torus']
+BUILD OK   Torus and Cylinder.json -> ['torus', 'cylinder']
+BUILD OK   Torus and its mirror across X plane.json -> ['torus', 'torus_mirror']
+BUILD OK   Torus at Z=5.json -> ['torus']
+BUILD OK   Torus with crossing cylinder and scaled result.json -> ['torus_base', 'cross_cyl', 'torus_cyl_union', 'scaled_part']
+BUILD OK   Torus with major radius 20mm and minor radius 3mm.json -> ['torus']
+BUILD OK   Trapezoid revolved around X-axis.json -> ['trapezoid_solid']
+BUILD OK   Triangle extrusion.json -> ['tri_plate']
+BUILD OK   Triangle profile revolved into cone-like shape.json -> ['cone_shape']
+BUILD OK   Truncated cone with bottom radius 15mm, top radius 5mm, height 20mm.json -> ['truncated_cone']
+BUILD OK   Two boxes positioned at [10, 0, 0] and [30, 0, 0].json -> ['box1', 'box2']
+BUILD OK   Two intersecting spheres unioned.json -> ['sphere1', 'sphere2', 'unioned']
+89 built, 6 failed. Files are in C:\Users\Vikas Dubey\Desktop\projects\Core\friday\tests\output

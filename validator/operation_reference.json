@@ -1,0 +1,544 @@
+{
+  "spec_version": "1.0",
+  "purpose": "Reference for the operations JSON accepted by build(path). Single source of truth for (a) LLMs generating test JSON and (b) cad_validator.py, which enforces exactly what is written here.",
+
+  "document_format": {
+    "top_level": { "operations": ["<operation>", "<operation>"] },
+    "operation": {
+      "type": "string, required. A key of 'operations' below.",
+      "name": "string, required. Unique label for this operation's result. Later operations refer to it by this exact string.",
+      "target": "ONLY for route=method operations: required, the name of an earlier result whose kind equals the operation's target_type. The builder consumes it; it is not a parameter of the underlying method.",
+      "<parameter>": "Every other key is a parameter of the operation (see its 'params'). Spelling must match exactly. Unknown keys and missing required keys crash the build. Key order inside an operation does not matter; the order of operations does."
+    }
+  },
+
+  "capabilities": {
+    "sketch_placement": false,
+    "_note": "create_sketch cannot place a sketch off the XY plane. While false: sweep and loft are unavailable and revolve about the Z axis is rejected. Flip to true only after Sketch.create gains placement support."
+  },
+
+  "reserved_names": ["x", "y", "z", "X", "Y", "Z"],
+
+  "units": "Lengths are in model units (mm). Angles are in DEGREES everywhere except the sketch 'angle' constraint (parameter angle_rad), which is in RADIANS.",
+
+  "value_types": {
+    "number": "JSON number. Not a string, not a boolean.",
+    "integer": "JSON integer.",
+    "boolean": "true or false.",
+    "vec3": "[x, y, z]: exactly three numbers. 2-element lists crash.",
+    "axis": "\"x\" | \"y\" | \"z\", or a non-zero vec3 direction. Case rules are stated per parameter.",
+    "ref": "String equal to the name of an earlier operation whose result kind is in the parameter's 'accepts'.",
+    "ref_list": "JSON array of such strings.",
+    "geo": "Geometry id inside the target sketch: the name of an earlier add_line/add_circle on the SAME sketch, or a literal integer id.",
+    "geo_pos": "Point on a geometry: 1 = start, 2 = end, 3 = center. A line allows 1 or 2; a circle allows only 3.",
+    "edges": "Non-negative integer or non-empty array of unique non-negative integers: 0-based indices into the target shape's edge list."
+  },
+
+  "result_kinds": {
+    "shape": "3D solid/compound. Target of shape methods; usable as 'other' in boolean operations.",
+    "sketch": "2D sketch. Target of sketch methods; usable as profile/path.",
+    "geo": "Integer id of one line/circle inside one sketch. Usable only as a 'geo' argument of operations on that same sketch."
+  },
+
+  "rules": [
+    "Operations run top to bottom. A reference may only point to a name created by an EARLIER operation.",
+    "Every operation needs a unique 'name'. Never use x, y, z (any case) as a name: the builder replaces every string argument equal to a known name with the object, so a shape named \"z\" would hijack axis: \"z\".",
+    "Reference parameters (ref, ref_list, geo) hold plain name strings. They are resolved only as top-level arguments or as items of a top-level list.",
+    "route=factory operations create something new. route=method operations act on an existing object and need the extra required key 'target'.",
+    "Shape methods never modify their target: they return a new shape stored under 'name'. The target stays usable.",
+    "Sketches are always created in the XY plane at the origin and cannot be moved or rotated from JSON. All sketch points are [x, y, 0].",
+    "A profile sketch (profile of extrude/revolve) must contain exactly ONE closed loop: either at least 3 add_line segments whose endpoints match exactly (every corner shared by exactly two lines), or exactly one add_circle. Do not mix lines and circles. Profiles cannot contain holes: make holes with 'hole' or 'cut' on the 3D shape. Geometry with is_construction=true is ignored when the profile is built.",
+    "Geometry ids are assigned per sketch in creation order starting at 0, construction geometry included. add_line/add_circle return that id, so their 'name' can be used as a 'geo' argument in later constraint operations on the same sketch. A literal integer id also works.",
+    "Constraints are optional. Never add redundant or conflicting constraints (for example 'horizontal' plus a second constraint that also fixes the same line's direction): the sketch solver fails and extrude breaks later. Give each constraint operation its own unique throwaway name (c0, c1, ...).",
+    "Edge indices for fillet/chamfer follow the target shape's OpenCascade edge order (a fresh box has edges 0-11). Omit 'edges' to use every edge. Fillet radius / chamfer distance must be smaller than half the thinnest dimension of the shape.",
+    "Export is not available from JSON. build() returns the shapes dict; export from Python with Exporter(shapes['final']).exportStep(path).",
+    "Edge indices refer to the CURRENT target's edge order. After fillet, chamfer, hole, boolean or pattern operations the numbering changes. Use explicit 'edges' only on a fresh primitive (box edges 0-11), and never chamfer or fillet edges next to an already-filleted or chamfered region. When unsure, omit 'edges'.",
+    "When sketching a closed profile, double-check your coordinates. The end coordinate of one line MUST exactly match the start coordinate of the next line to form an unbroken chain.",
+    "Always apply coincident constraints to connect the corners of a sketched shape BEFORE applying distance, radius, or equal constraints, otherwise the shape will tear apart.",
+    "Never guess edge indices for chamfer or fillet. If you are modifying a shape after boolean operations or cuts, you MUST omit the edges parameter to apply the feature to all valid edges."
+  ],
+
+  "operations": {
+
+    "create_box": {
+      "category": "primitive", "route": "factory", "returns": "shape",
+      "summary": "Axis-aligned box. 'position' is the corner with the smallest x, y, z; the box extends toward +x, +y, +z.",
+      "params": {
+        "length": { "type": "number", "required": true, "positive": true, "desc": "size along X" },
+        "width": { "type": "number", "required": true, "positive": true, "desc": "size along Y" },
+        "height": { "type": "number", "required": true, "positive": true, "desc": "size along Z" },
+        "position": { "type": "vec3", "default": [0, 0, 0], "desc": "minimum corner" }
+      },
+      "example": { "type": "create_box", "name": "base", "length": 50, "width": 30, "height": 10 }
+    },
+
+    "create_cylinder": {
+      "category": "primitive", "route": "factory", "returns": "shape",
+      "summary": "Cylinder with its axis along +Z. 'position' is the center of the bottom circle.",
+      "params": {
+        "radius": { "type": "number", "required": true, "positive": true },
+        "height": { "type": "number", "required": true, "positive": true },
+        "position": { "type": "vec3", "default": [0, 0, 0], "desc": "center of bottom face" }
+      },
+      "example": { "type": "create_cylinder", "name": "pin", "radius": 5, "height": 10, "position": [25, 15, 0] }
+    },
+
+    "create_cone": {
+      "category": "primitive", "route": "factory", "returns": "shape",
+      "summary": "Cone / truncated cone along +Z. r1 is the bottom radius, r2 the top radius. 'position' is the center of the bottom circle.",
+      "params": {
+        "r1": { "type": "number", "required": true, "min": 0, "desc": "bottom radius" },
+        "r2": { "type": "number", "required": true, "min": 0, "desc": "top radius (0 = pointed tip)" },
+        "height": { "type": "number", "required": true, "positive": true },
+        "position": { "type": "vec3", "default": [0, 0, 0] }
+      },
+      "notes": ["r1 and r2 must not both be 0."],
+      "example": { "type": "create_cone", "name": "funnel", "r1": 10, "r2": 3, "height": 20 }
+    },
+
+    "create_sphere": {
+      "category": "primitive", "route": "factory", "returns": "shape",
+      "summary": "Sphere. 'position' is the center.",
+      "params": {
+        "radius": { "type": "number", "required": true, "positive": true },
+        "position": { "type": "vec3", "default": [0, 0, 0], "desc": "sphere center" }
+      },
+      "example": { "type": "create_sphere", "name": "ball", "radius": 12, "position": [10, 10, 10] }
+    },
+
+    "create_torus": {
+      "category": "primitive", "route": "factory", "returns": "shape",
+      "summary": "Torus around the Z axis. r1 is the ring (major) radius, r2 the tube (minor) radius. 'position' is the center.",
+      "params": {
+        "r1": { "type": "number", "required": true, "positive": true, "desc": "major radius" },
+        "r2": { "type": "number", "required": true, "positive": true, "desc": "minor radius, should be < r1" },
+        "position": { "type": "vec3", "default": [0, 0, 0] }
+      },
+      "example": { "type": "create_torus", "name": "ring", "r1": 20, "r2": 4 }
+    },
+
+    "create_sketch": {
+      "category": "sketch", "route": "factory", "returns": "sketch",
+      "summary": "New empty sketch in the XY plane at the origin. Takes NO parameters: 'name' is only the JSON label (the FreeCAD object name is always 'Sketch'), and there is no plane/offset/placement argument.",
+      "params": {},
+      "example": { "type": "create_sketch", "name": "sk" }
+    },
+
+    "extrude": {
+      "category": "feature3d", "route": "factory", "returns": "shape",
+      "summary": "Extrude a closed profile into a solid. The solid runs from the profile along 'direction' for 'height'.",
+      "params": {
+        "profile": { "type": "ref", "accepts": ["sketch"], "required": true, "closed_profile": true, "desc": "sketch holding exactly one closed loop" },
+        "height": { "type": "number", "required": true, "nonzero": true, "desc": "distance along direction; negative reverses" },
+        "direction": { "type": "vec3", "nonzero": true, "default": [0, 0, 1], "desc": "need not be unit length; it is normalized" }
+      },
+      "example": { "type": "extrude", "name": "plate", "profile": "sk", "height": 5 }
+    },
+
+    "revolve": {
+      "category": "feature3d", "route": "factory", "returns": "shape",
+      "summary": "Revolve a closed profile around an axis. Because sketches lie in the XY plane, use axis \"x\" or \"y\" and keep the whole profile on one side of the axis. Axis \"z\" gives a flat, zero-thickness result.",
+      "params": {
+        "profile": { "type": "ref", "accepts": ["sketch"], "required": true, "closed_profile": true },
+        "angle": { "type": "number", "positive": true, "max": 360, "default": 360, "desc": "degrees" },
+        "axis": { "type": "axis", "values": ["x", "y", "z"], "case_sensitive": true, "default": "z", "desc": "LOWERCASE only here (\"Z\" raises KeyError). Pass \"x\" or \"y\"; the default \"z\" is not useful." },
+        "center": { "type": "vec3", "default": [0, 0, 0], "desc": "a point the axis passes through" }
+      },
+      "example": { "type": "revolve", "name": "tube", "profile": "sk", "angle": 360, "axis": "y" }
+    },
+
+    "sweep": {
+      "category": "feature3d", "route": "factory", "returns": "shape",
+      "requires": "sketch_placement",
+      "unavailable_reason": "sweep needs a profile sketch perpendicular to the path, but create_sketch always makes XY-plane sketches, so profile and path would be coplanar. Add plane/offset support to Sketch.create first.",
+      "summary": "Sweep a closed profile along a path.",
+      "params": {
+        "profile": { "type": "ref", "accepts": ["sketch"], "required": true, "closed_profile": true },
+        "path": { "type": "ref", "accepts": ["sketch"], "required": true, "desc": "open or closed path sketch" },
+        "frenet": { "type": "boolean", "default": true }
+      },
+      "example": { "type": "sweep", "name": "pipe", "profile": "sk_profile", "path": "sk_path" }
+    },
+
+    "loft": {
+      "category": "feature3d", "route": "factory", "returns": "shape",
+      "requires": "sketch_placement",
+      "unavailable_reason": "loft needs profiles on different planes, but create_sketch always makes XY-plane sketches at z=0, so all profiles would overlap. Add plane/offset support to Sketch.create first.",
+      "summary": "Loft through two or more closed profiles, in the order given.",
+      "params": {
+        "profiles": { "type": "ref_list", "accepts": ["sketch"], "min_items": 2, "required": true, "closed_profile": true },
+        "ruled": { "type": "boolean", "default": false, "desc": "true = straight ruled surfaces between profiles" },
+        "closed": { "type": "boolean", "default": false, "desc": "true = also loft back from last to first profile" }
+      },
+      "example": { "type": "loft", "name": "blend", "profiles": ["sk_a", "sk_b"] }
+    },
+
+    "translate": {
+      "category": "transform", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Move a copy of the target by (x, y, z).",
+      "params": {
+        "x": { "type": "number", "default": 0 },
+        "y": { "type": "number", "default": 0 },
+        "z": { "type": "number", "default": 0 }
+      },
+      "example": { "type": "translate", "name": "moved", "target": "base", "x": 30, "z": 5 }
+    },
+
+    "rotate": {
+      "category": "transform", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Rotate a copy of the target by 'angle' degrees about an axis through 'center'.",
+      "params": {
+        "angle": { "type": "number", "required": true, "desc": "degrees" },
+        "axis": { "type": "axis", "values": ["x", "y", "z"], "case_sensitive": false, "default": "z" },
+        "center": { "type": "vec3", "default": [0, 0, 0], "desc": "point on the axis" }
+      },
+      "example": { "type": "rotate", "name": "turned", "target": "base", "angle": 45, "axis": "z" }
+    },
+
+    "scale": {
+      "category": "transform", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Uniformly scale a copy of the target about the global origin.",
+      "params": {
+        "scaling_factor": { "type": "number", "required": true, "positive": true }
+      },
+      "example": { "type": "scale", "name": "bigger", "target": "base", "scaling_factor": 2 }
+    },
+
+    "mirror": {
+      "category": "transform", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Mirror the target across a plane. 'plane' names the plane's NORMAL axis: \"x\" mirrors across the YZ plane, \"y\" across XZ, \"z\" across XY. The plane passes through 'point'. The result replaces the original, so fuse with 'union' to keep both halves.",
+      "params": {
+        "plane": { "type": "axis", "values": ["x", "y", "z"], "case_sensitive": false, "default": "x", "desc": "normal of the mirror plane" },
+        "point": { "type": "vec3", "default": [0, 0, 0], "desc": "a point on the mirror plane" }
+      },
+      "example": { "type": "mirror", "name": "flipped", "target": "base", "plane": "x" }
+    },
+
+    "linearPattern": {
+      "category": "pattern", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Fuse 'count' copies (the original included) spaced by (dx, dy, dz). count < 2 returns just a copy.",
+      "params": {
+        "count": { "type": "integer", "required": true, "min": 1, "desc": "total copies including the original" },
+        "dx": { "type": "number", "default": 0 },
+        "dy": { "type": "number", "default": 0 },
+        "dz": { "type": "number", "default": 0 }
+      },
+      "notes": ["Use spacing larger than the part so copies do not just overlap into one blob."],
+      "example": { "type": "linearPattern", "name": "row", "target": "peg", "count": 4, "dx": 10 }
+    },
+
+    "circularPattern": {
+      "category": "pattern", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Fuse 'count' copies (the original included) rotated about an axis through 'center'. angle=360 spaces them evenly around the full circle; any other angle puts the first copy at 0 and the last at 'angle'.",
+      "params": {
+        "count": { "type": "integer", "required": true, "min": 1, "desc": "total copies including the original" },
+        "axis": { "type": "axis", "values": ["x", "y", "z"], "case_sensitive": false, "default": "z" },
+        "center": { "type": "vec3", "default": [0, 0, 0], "desc": "point on the axis; the target should NOT sit on the axis" },
+        "angle": { "type": "number", "positive": true, "max": 360, "default": 360, "desc": "degrees" }
+      },
+      "example": { "type": "circularPattern", "name": "ring6", "target": "peg", "count": 6, "center": [20, 0, 0] }
+    },
+
+    "fillet": {
+      "category": "feature", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Round edges of the target. Omit 'edges' to round every edge.",
+      "params": {
+        "radius": { "type": "number", "required": true, "positive": true },
+        "edges": { "type": "edges", "desc": "edge index or list of indices; default all edges" }
+      },
+      "example": { "type": "fillet", "name": "rounded", "target": "base", "radius": 2 }
+    },
+
+    "chamfer": {
+      "category": "feature", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Bevel edges of the target. Omit 'edges' to bevel every edge.",
+      "params": {
+        "distance": { "type": "number", "required": true, "positive": true },
+        "edges": { "type": "edges", "desc": "edge index or list of indices; default all edges" }
+      },
+      "example": { "type": "chamfer", "name": "beveled", "target": "base", "distance": 1, "edges": [0, 1] }
+    },
+
+    "hole": {
+      "category": "feature", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Cut a cylindrical hole that starts at 'position' and goes toward +Z. If 'depth' is omitted it runs from position.z up to the top (ZMax) of the target, i.e. through a part whose bottom is at or below position.z.",
+      "params": {
+        "radius": { "type": "number", "required": true, "positive": true },
+        "position": { "type": "vec3", "required": true, "desc": "center of the hole's starting circle" },
+        "depth": { "type": "number", "positive": true, "desc": "default: BoundBox.ZMax - position.z" }
+      },
+      "example": { "type": "hole", "name": "drilled", "target": "base", "radius": 4, "position": [25, 15, 0] }
+    },
+
+    "union": {
+      "category": "boolean", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Fuse target and 'other'.",
+      "params": { "other": { "type": "ref", "accepts": ["shape"], "required": true } },
+      "example": { "type": "union", "name": "joined", "target": "base", "other": "pin" }
+    },
+
+    "cut": {
+      "category": "boolean", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Subtract 'other' from target. The parameter is called 'other', not 'tool'.",
+      "params": { "other": { "type": "ref", "accepts": ["shape"], "required": true } },
+      "example": { "type": "cut", "name": "part", "target": "base", "other": "pin" }
+    },
+
+    "intersection": {
+      "category": "boolean", "route": "method", "target_type": "shape", "returns": "shape",
+      "summary": "Keep only the volume shared by target and 'other'.",
+      "params": { "other": { "type": "ref", "accepts": ["shape"], "required": true } },
+      "example": { "type": "intersection", "name": "common", "target": "base", "other": "ball" }
+    },
+
+    "add_line": {
+      "category": "sketch_geometry", "route": "method", "target_type": "sketch", "returns": "geo", "geometry": "line",
+      "summary": "Add a line segment. Returns its geometry id (0, 1, 2, ... per sketch, in creation order). Points must be [x, y, 0].",
+      "params": {
+        "start": { "type": "vec3", "required": true, "sketch_point": true },
+        "end": { "type": "vec3", "required": true, "sketch_point": true },
+        "is_construction": { "type": "boolean", "default": false, "desc": "construction geometry is ignored when building a profile" }
+      },
+      "example": { "type": "add_line", "name": "l0", "target": "sk", "start": [0, 0, 0], "end": [40, 0, 0] }
+    },
+
+    "add_circle": {
+      "category": "sketch_geometry", "route": "method", "target_type": "sketch", "returns": "geo", "geometry": "circle",
+      "summary": "Add a full circle. Returns its geometry id. Center must be [x, y, 0].",
+      "params": {
+        "center": { "type": "vec3", "required": true, "sketch_point": true },
+        "radius": { "type": "number", "required": true, "positive": true },
+        "is_construction": { "type": "boolean", "default": false }
+      },
+      "example": { "type": "add_circle", "name": "c", "target": "sk", "center": [20, 10, 0], "radius": 4 }
+    },
+
+    "coincident": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two points coincide. Positions: 1 start, 2 end, 3 center.",
+      "params": {
+        "geo_a": { "type": "geo", "required": true },
+        "pos_a": { "type": "geo_pos", "for": "geo_a", "required": true },
+        "geo_b": { "type": "geo", "required": true },
+        "pos_b": { "type": "geo_pos", "for": "geo_b", "required": true }
+      },
+      "example": { "type": "coincident", "name": "k0", "target": "sk", "geo_a": "l0", "pos_a": 2, "geo_b": "l1", "pos_b": 1 }
+    },
+
+    "horizontal": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make a line horizontal.",
+      "params": { "geo": { "type": "geo", "geo_kinds": ["line"], "required": true } },
+      "example": { "type": "horizontal", "name": "k1", "target": "sk", "geo": "l0" }
+    },
+
+    "vertical": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make a line vertical.",
+      "params": { "geo": { "type": "geo", "geo_kinds": ["line"], "required": true } },
+      "example": { "type": "vertical", "name": "k2", "target": "sk", "geo": "l1" }
+    },
+
+    "parallel": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two lines parallel.",
+      "params": {
+        "geo_a": { "type": "geo", "geo_kinds": ["line"], "required": true },
+        "geo_b": { "type": "geo", "geo_kinds": ["line"], "required": true }
+      },
+      "example": { "type": "parallel", "name": "k3", "target": "sk", "geo_a": "l0", "geo_b": "l2" }
+    },
+
+    "perpendicular": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two lines perpendicular.",
+      "params": {
+        "geo_a": { "type": "geo", "geo_kinds": ["line"], "required": true },
+        "geo_b": { "type": "geo", "geo_kinds": ["line"], "required": true }
+      },
+      "example": { "type": "perpendicular", "name": "k4", "target": "sk", "geo_a": "l0", "geo_b": "l1" }
+    },
+
+    "tangent": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two geometries (line/circle) tangent.",
+      "params": {
+        "geo_a": { "type": "geo", "required": true },
+        "geo_b": { "type": "geo", "required": true }
+      },
+      "example": { "type": "tangent", "name": "k5", "target": "sk", "geo_a": "l0", "geo_b": "c" }
+    },
+
+    "equal": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two lines equal in length, or two circles equal in radius. Do not mix a line with a circle.",
+      "params": {
+        "geo_a": { "type": "geo", "required": true },
+        "geo_b": { "type": "geo", "required": true }
+      },
+      "example": { "type": "equal", "name": "k6", "target": "sk", "geo_a": "l0", "geo_b": "l2" }
+    },
+
+    "pointOnObject": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Put a point of one geometry on another geometry.",
+      "params": {
+        "point_geo": { "type": "geo", "required": true },
+        "point_pos": { "type": "geo_pos", "for": "point_geo", "required": true },
+        "target_geo": { "type": "geo", "required": true, "desc": "the geometry the point must lie on" }
+      },
+      "example": { "type": "pointOnObject", "name": "k7", "target": "sk", "point_geo": "l0", "point_pos": 1, "target_geo": "c" }
+    },
+
+    "symmetric": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Make two points symmetric about a line.",
+      "params": {
+        "geo_a": { "type": "geo", "required": true },
+        "pos_a": { "type": "geo_pos", "for": "geo_a", "required": true },
+        "geo_b": { "type": "geo", "required": true },
+        "pos_b": { "type": "geo_pos", "for": "geo_b", "required": true },
+        "mirror_line": { "type": "geo", "geo_kinds": ["line"], "required": true }
+      },
+      "example": { "type": "symmetric", "name": "k8", "target": "sk", "geo_a": "l0", "pos_a": 1, "geo_b": "l2", "pos_b": 2, "mirror_line": "axis_line" }
+    },
+
+    "block": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Lock a geometry in place.",
+      "params": { "geo": { "type": "geo", "required": true } },
+      "example": { "type": "block", "name": "k9", "target": "sk", "geo": "l0" }
+    },
+
+    "distance": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the length of a line.",
+      "params": {
+        "geo": { "type": "geo", "geo_kinds": ["line"], "required": true },
+        "length": { "type": "number", "required": true, "positive": true }
+      },
+      "example": { "type": "distance", "name": "k10", "target": "sk", "geo": "l0", "length": 40 }
+    },
+
+    "distanceX": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the X coordinate of a point (horizontal distance from the sketch origin).",
+      "params": {
+        "geo": { "type": "geo", "required": true },
+        "pos": { "type": "geo_pos", "for": "geo", "required": true },
+        "value": { "type": "number", "required": true }
+      },
+      "example": { "type": "distanceX", "name": "k11", "target": "sk", "geo": "l0", "pos": 1, "value": 0 }
+    },
+
+    "distanceY": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the Y coordinate of a point (vertical distance from the sketch origin).",
+      "params": {
+        "geo": { "type": "geo", "required": true },
+        "pos": { "type": "geo_pos", "for": "geo", "required": true },
+        "value": { "type": "number", "required": true }
+      },
+      "example": { "type": "distanceY", "name": "k12", "target": "sk", "geo": "l0", "pos": 1, "value": 0 }
+    },
+
+    "radius": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the radius of a circle.",
+      "params": {
+        "geo": { "type": "geo", "geo_kinds": ["circle"], "required": true },
+        "value": { "type": "number", "required": true, "positive": true }
+      },
+      "example": { "type": "radius", "name": "k13", "target": "sk", "geo": "c", "value": 4 }
+    },
+
+    "diameter": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the diameter of a circle.",
+      "params": {
+        "geo": { "type": "geo", "geo_kinds": ["circle"], "required": true },
+        "value": { "type": "number", "required": true, "positive": true }
+      },
+      "example": { "type": "diameter", "name": "k14", "target": "sk", "geo": "c", "value": 8 }
+    },
+
+    "angle": {
+      "category": "sketch_constraint", "route": "method", "target_type": "sketch", "returns": "sketch",
+      "summary": "Fix the angle of a line relative to the sketch X axis. RADIANS, unlike every other angle in this format.",
+      "params": {
+        "geo": { "type": "geo", "geo_kinds": ["line"], "required": true },
+        "angle_rad": { "type": "number", "required": true, "desc": "radians" }
+      },
+      "example": { "type": "angle", "name": "k15", "target": "sk", "geo": "l0", "angle_rad": 0.7853981634 }
+    }
+  },
+
+  "workflow_examples": [
+    {
+      "title": "Box, fillet all edges, drill a through hole",
+      "document": { "operations": [
+        { "type": "create_box", "name": "base", "length": 50, "width": 30, "height": 10 },
+        { "type": "fillet", "name": "base_r", "target": "base", "radius": 2 },
+        { "type": "hole", "name": "drilled", "target": "base_r", "radius": 4, "position": [25, 15, 0] }
+      ] }
+    },
+    {
+      "title": "Boolean intersection then translate",
+      "document": { "operations": [
+        { "type": "create_box", "name": "b", "length": 20, "width": 20, "height": 20 },
+        { "type": "create_sphere", "name": "s", "radius": 12, "position": [10, 10, 10] },
+        { "type": "intersection", "name": "rounded", "target": "b", "other": "s" },
+        { "type": "translate", "name": "moved", "target": "rounded", "x": 30 }
+      ] }
+    },
+    {
+      "title": "Linear and circular patterns",
+      "document": { "operations": [
+        { "type": "create_cylinder", "name": "peg", "radius": 2, "height": 8 },
+        { "type": "linearPattern", "name": "row", "target": "peg", "count": 4, "dx": 10 },
+        { "type": "circularPattern", "name": "ring6", "target": "peg", "count": 6, "center": [20, 0, 0] }
+      ] }
+    },
+    {
+      "title": "Constrained rectangle extruded, drilled with an extruded circle",
+      "document": { "operations": [
+        { "type": "create_sketch", "name": "rect" },
+        { "type": "add_line", "name": "l0", "target": "rect", "start": [0, 0, 0], "end": [40, 0, 0] },
+        { "type": "add_line", "name": "l1", "target": "rect", "start": [40, 0, 0], "end": [40, 20, 0] },
+        { "type": "add_line", "name": "l2", "target": "rect", "start": [40, 20, 0], "end": [0, 20, 0] },
+        { "type": "add_line", "name": "l3", "target": "rect", "start": [0, 20, 0], "end": [0, 0, 0] },
+        { "type": "coincident", "name": "k0", "target": "rect", "geo_a": "l0", "pos_a": 2, "geo_b": "l1", "pos_b": 1 },
+        { "type": "coincident", "name": "k1", "target": "rect", "geo_a": "l1", "pos_a": 2, "geo_b": "l2", "pos_b": 1 },
+        { "type": "coincident", "name": "k2", "target": "rect", "geo_a": "l2", "pos_a": 2, "geo_b": "l3", "pos_b": 1 },
+        { "type": "coincident", "name": "k3", "target": "rect", "geo_a": "l3", "pos_a": 2, "geo_b": "l0", "pos_b": 1 },
+        { "type": "horizontal", "name": "k4", "target": "rect", "geo": "l0" },
+        { "type": "vertical", "name": "k5", "target": "rect", "geo": "l1" },
+        { "type": "distance", "name": "k6", "target": "rect", "geo": "l0", "length": 40 },
+        { "type": "extrude", "name": "plate", "profile": "rect", "height": 5 },
+        { "type": "create_sketch", "name": "round" },
+        { "type": "add_circle", "name": "hole_c", "target": "round", "center": [20, 10, 0], "radius": 4 },
+        { "type": "radius", "name": "k7", "target": "round", "geo": "hole_c", "value": 4 },
+        { "type": "extrude", "name": "pin", "profile": "round", "height": 5 },
+        { "type": "cut", "name": "plate_drilled", "target": "plate", "other": "pin" }
+      ] }
+    },
+    {
+      "title": "Revolve a rectangle about Y into a tube",
+      "document": { "operations": [
+        { "type": "create_sketch", "name": "prof" },
+        { "type": "add_line", "name": "p0", "target": "prof", "start": [5, 0, 0], "end": [15, 0, 0] },
+        { "type": "add_line", "name": "p1", "target": "prof", "start": [15, 0, 0], "end": [15, 20, 0] },
+        { "type": "add_line", "name": "p2", "target": "prof", "start": [15, 20, 0], "end": [5, 20, 0] },
+        { "type": "add_line", "name": "p3", "target": "prof", "start": [5, 20, 0], "end": [5, 0, 0] },
+        { "type": "revolve", "name": "tube", "profile": "prof", "angle": 360, "axis": "y" }
+      ] }
+    }
+  ],
+
+  "test_generation_hints": [
+    "Valid tests: use workflow_examples as templates; vary numbers, names and chain length. Only use operations that are available (no 'requires' with a false capability).",
+    "Boundary tests: pattern count of 1 vs 2+, circularPattern angle 360 vs less, fillet/chamfer with and without 'edges', hole with and without 'depth', extrude with a custom direction, is_construction true on some lines.",
+    "Negative tests (the validator must reject these): misspelled type, missing required argument, extra/unknown argument (e.g. 'plane' on create_sketch, 'tool' on cut), wrong value type, 2-element vec3, reference to an undefined or later name, wrong kind of reference (extrude of a box), open or multi-loop sketch profile, revolve about \"z\" or \"Z\", profile crossing the revolve axis, duplicate or reserved names, constraint position invalid for the geometry (pos 1 on a circle), geo from a different sketch, loft/sweep while unavailable.",
+    "Attach an expected outcome (valid, or which error) to every generated test."
+  ]
+}
