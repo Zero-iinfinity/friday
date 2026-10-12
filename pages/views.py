@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 from . import engine
 
@@ -90,11 +91,13 @@ def contact(request):
 
 # ---------- Try it out ----------
 # To require an account for the Try page, add @login_required on try_page and try_generate.
+@login_required
 def try_page(request):
     return render(request, "try.html", {"examples": EXAMPLES})
 
 
 @require_POST
+@login_required
 def try_generate(request):
     try:
         body = json.loads(request.body or "{}")

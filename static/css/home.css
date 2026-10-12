@@ -9,7 +9,42 @@
     radial-gradient(900px 500px at 100% 10%, #ececec 0%, transparent 55%),
     var(--bg);
 }
-.hero-inner { text-align: center; }
+/* Text sits above the model but lets mouse/touch through, so empty areas (and the gaps between words) still rotate the model. Links and buttons stay clickable. */
+.hero-inner { text-align: center; position: relative; z-index: 1; pointer-events: none; }
+.hero-inner a, .hero-inner button { pointer-events: auto; }
+
+/* ---------- 3D model glider ---------- */
+.glider {
+  position: absolute; inset: 0; z-index: 0;
+  display: flex; align-items: center;
+  overflow: hidden;
+  container-type: inline-size;       /* lets the keyframes use 100cqw = hero width */
+}
+.glider-track {
+  flex: none;
+  width: clamp(260px, 34vw, 480px);  /* model size */
+  aspect-ratio: 1;
+  /* speed: change 18s */
+}
+.glider-track:hover,
+.glider-track:active { animation-play-state: paused; }   /* holds still while you play with it */
+.glider-track model-viewer {
+  width: 100%; height: 100%;
+  background: transparent; --poster-color: transparent;
+  cursor: grab; outline: none;
+}
+.glider-track model-viewer:active { cursor: grabbing; }
+
+@keyframes glide {
+  from { transform: translateX(0); }
+  to {
+    transform: translateX(calc(100vw - 100%));    /* fallback for old browsers */
+    transform: translateX(calc(100cqw - 100%));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glider-track { animation: none; margin-inline: auto; }
+}
 .hero-title { font-size: clamp(2.5rem, 7vw, 5.2rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.04; }
 .hero-sub { margin: 28px auto 0; color: var(--ink-2); font-size: clamp(1rem, 1.6vw, 1.3rem); max-width: 48ch; }
 .hero-actions { margin-top: 40px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }

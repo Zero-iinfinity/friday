@@ -11,6 +11,20 @@
 
 <!-- HERO -->
 <section class="hero">
+
+  <!-- 3D model: glides left to right behind the text, drag to rotate -->
+  <div class="glider">
+    <div class="glider-track">
+      <model-viewer
+        src="{% static 'models/model.glb' %}"
+        alt="3D CAD model. Drag to rotate it."
+        camera-controls disable-zoom touch-action="pan-y"
+        interaction-prompt="none" shadow-intensity="0.8" exposure="1.1"
+        loading="eager">
+      </model-viewer>
+    </div>
+  </div>
+
   <div class="container hero-inner">
     <h1 class="hero-title reveal">Describe It.<br>Get The CAD.</h1>
     <p class="hero-sub reveal">Friday turns a plain-English description into a validated<br class="desk-br"> CAD model, ready to export, in a few steps.</p>
@@ -160,4 +174,8 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 {% endblock %}
