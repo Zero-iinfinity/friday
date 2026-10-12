@@ -13,3 +13,4 @@ wheels/
 db.sqlite3
 LLM_output/
 tests/output/
+media/

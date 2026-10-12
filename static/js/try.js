@@ -78,15 +78,41 @@
     return answers;
   }
 
+  const FORMAT_LABELS = { step: 'STEP', stl: 'STL', fcstd: 'FreeCAD (.FCStd)', json: 'JSON' };
+
   function renderResult(data) {
     opsEl.textContent = JSON.stringify(data.operations || [], null, 2);
     msgEl.textContent = data.message || '';
-    if (data.download_url) {
+
+    let list = document.getElementById('downloadList');
+    if (!list) {
+      list = document.createElement('div');
+      list.id = 'downloadList';
+      list.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;';
+      downloadBtn.insertAdjacentElement('afterend', list);
+    }
+    list.innerHTML = '';
+
+    const files = data.downloads || {};
+    const keys = Object.keys(files);
+
+    if (keys.length) {
+      downloadBtn.hidden = true;
+      keys.forEach((k) => {
+        const a = document.createElement('a');
+        a.href = files[k];
+        a.download = '';
+        a.className = downloadBtn.className;
+        a.textContent = 'Download ' + (FORMAT_LABELS[k] || k.toUpperCase());
+        list.appendChild(a);
+      });
+    } else if (data.download_url) {
       downloadBtn.href = data.download_url;
       downloadBtn.hidden = false;
     } else {
       downloadBtn.hidden = true;
     }
+
     viewport.classList.add('ready');
     viewportText.textContent = data.preview_text || 'Model generated.';
     resultEl.hidden = false;
