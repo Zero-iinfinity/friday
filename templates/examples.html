@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Examples | Friday{% endblock %}
+{% block meta_description %}Example prompts you can give Friday and the kind of operations it builds from them.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/examples.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow reveal">Examples</p>
+    <h1 class="page-title reveal">What you can ask for.</h1>
+    <p class="section-lead reveal">Start from one of these prompts, or write your own. Each button opens it in the Try page, ready to run.</p>
+  </div>
+</section>
+
+<section class="section ex">
+  <div class="container ex-grid">
+    {% for e in examples %}
+    <article class="ex-card reveal">
+      <div class="term"><p>{{ e.prompt }}</p></div>
+      <div class="ex-body">
+        <span class="ex-tags">{{ e.tags }}</span>
+        <h2>{{ e.name }}</h2>
+        <p>{{ e.summary }}</p>
+        <div class="chips">
+          {% for op in e.ops %}<span class="chip">{{ op }}</span>{% endfor %}
+        </div>
+        <a href="{% url 'try' %}?prompt={{ e.prompt|urlencode }}" class="btn btn-dark ex-btn">Try this prompt</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner reveal">
+    <h2>Have your own part in mind?</h2>
+    <a href="{% url 'try' %}" class="btn btn-light">Try it out</a>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us | Friday{% endblock %}
+{% block meta_description %}Questions, feedback or want to collaborate on Friday? Get in touch.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow reveal">Contact Us</p>
+    <h1 class="page-title reveal">Let’s talk about your part.</h1>
+    <p class="section-lead reveal">Feedback, bug reports, ideas or collaboration. Fill in the form and we’ll get back to you.</p>
+  </div>
+</section>
+
+<section class="section contact">
+  <div class="container contact-grid">
+
+    <aside class="contact-info reveal">
+      <h3>Talk to us</h3>
+      <p>hello@friday.example</p>
+      <p>+91 00000 00000</p>
+      <h3>Follow</h3>
+      <p><a href="https://github.com/Zero-iinfinity/friday" target="_blank" rel="noopener">GitHub</a> · <a href="#">LinkedIn</a></p>
+    </aside>
+
+    <form class="contact-form reveal" method="post" action="{% url 'contact' %}">
+      {% csrf_token %}
+
+      {% if messages %}
+      <ul class="messages">
+        {% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="row">
+        <label>First name<input type="text" name="first_name" required></label>
+        <label>Last name<input type="text" name="last_name" required></label>
+      </div>
+      <div class="row">
+        <label>Email<input type="email" name="email" required></label>
+        <label>Phone<input type="tel" name="phone"></label>
+      </div>
+      <div class="row">
+        <label>Organisation / college<input type="text" name="organisation"></label>
+        <label>Website or GitHub<input type="url" name="website" placeholder="https://"></label>
+      </div>
+      <div class="row">
+        <label>I am a
+          <select name="role">
+            <option value="">Select…</option>
+            <option>Student</option><option>Mechanical engineer</option><option>Maker / hobbyist</option>
+            <option>Researcher</option><option>Developer</option><option>Other</option>
+          </select>
+        </label>
+        <label>Main use case
+          <select name="use_case">
+            <option value="">Select…</option>
+            <option>Rapid prototyping</option><option>3D printing</option><option>Robotics</option>
+            <option>Education</option><option>Research</option><option>Other</option>
+          </select>
+        </label>
+      </div>
+      <label>How can we help?<textarea name="message" rows="5"></textarea></label>
+
+      <button type="submit" class="btn btn-dark">Send message</button>
+    </form>
+
+  </div>
+</section>
+
+{% endblock %}

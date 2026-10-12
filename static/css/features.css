@@ -1,0 +1,17 @@
+/* Friday — features.css */
+.feat-row {
+  display: grid; grid-template-columns: 80px 1fr auto; gap: 32px; align-items: center;
+  padding: 40px 0; border-top: 1px solid var(--line);
+  transition: padding-left .35s var(--ease);
+}
+.feat-row:last-child { border-bottom: 1px solid var(--line); }
+.feat-row:hover { padding-left: 16px; }
+.feat-index { font-size: 1rem; font-weight: 600; color: var(--ink-3); letter-spacing: .1em; }
+.feat-main h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); margin-bottom: 8px; }
+.feat-main p { color: var(--ink-2); max-width: 60ch; }
+
+@media (max-width: 820px) {
+  .feat-row { grid-template-columns: 1fr; gap: 14px; }
+  .feat-row:hover { padding-left: 0; }
+  .feat-row .btn { justify-self: start; }
+}

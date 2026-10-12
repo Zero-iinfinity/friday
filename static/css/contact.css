@@ -1,0 +1,33 @@
+/* Friday — contact.css */
+.contact-grid { display: grid; grid-template-columns: 1fr 1.7fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
+
+.contact-info h3 { font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 8px; }
+.contact-info p { font-size: 1.15rem; margin-bottom: 32px; }
+.contact-info a { border-bottom: 1px solid var(--ink); }
+
+.contact-form {
+  background: #fff; border-radius: var(--radius-card); padding: clamp(24px, 4vw, 48px);
+  display: flex; flex-direction: column; gap: 20px;
+}
+.contact-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.contact-form label { display: flex; flex-direction: column; gap: 8px; font-size: .85rem; font-weight: 500; color: var(--ink-2); }
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  font: 400 1rem var(--font); color: var(--ink);
+  padding: 14px 18px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg);
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.contact-form textarea { resize: vertical; }
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus { outline: none; border-color: var(--ink); background: #fff; box-shadow: 0 0 0 4px rgba(0, 0, 0, .06); }
+.contact-form .btn { align-self: flex-start; margin-top: 8px; }
+
+.messages { padding: 14px 18px; border-radius: 14px; background: var(--ink); color: #fff; }
+
+@media (max-width: 860px) {
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-form .row { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Friday | Describe it. Get the CAD.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-inner">
+    <h1 class="hero-title reveal">Describe It.<br>Get The CAD.</h1>
+    <p class="hero-sub reveal">Friday turns a plain-English description into a validated<br class="desk-br"> CAD model, ready to export, in a few steps.</p>
+    <div class="hero-actions reveal">
+      <a href="{% url 'examples' %}" class="btn btn-dark">See examples</a>
+      <a href="{% url 'contact' %}" class="btn btn-outline">Get in touch</a>
+    </div>
+    <div class="try-row reveal">
+      <a href="{% url 'try' %}" class="btn btn-dark btn-lg">Try it out <span class="arrow" aria-hidden="true">→</span></a>
+      <p>Type a part description and watch it get built.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THREE PILLARS -->
+<section class="pillars">
+  <div class="container pillars-card reveal">
+    <article>
+      <span class="pillar-num">01</span>
+      <h3>Describe</h3>
+      <p>Explain the part the way you’d tell a colleague. Dimensions, shapes and features in plain language.</p>
+    </article>
+    <article>
+      <span class="pillar-num">02</span>
+      <h3>Validate</h3>
+      <p>If something is missing, Friday asks. Every plan is checked against a schema and for geometry problems before it is built.</p>
+    </article>
+    <article>
+      <span class="pillar-num">03</span>
+      <h3>Export</h3>
+      <p>The model is built operation by operation, then exported as a file you can take into your own tools.</p>
+    </article>
+  </div>
+</section>
+
+<!-- MADE FOR STRIP -->
+<section class="made-for">
+  <div class="container">
+    <p class="eyebrow center">Made for</p>
+    <ul class="made-row">
+      <li>Mechanical engineers</li>
+      <li>Students</li>
+      <li>3D-printing makers</li>
+      <li>Robotics teams</li>
+      <li>Product designers</li>
+    </ul>
+  </div>
+</section>
+
+<!-- STATEMENT -->
+<section class="section statement">
+  <div class="container statement-grid">
+    <h2 class="section-title reveal">Design at the speed<br>of a sentence.</h2>
+    <div class="reveal">
+      <p class="section-lead">Skip the sketch, extrude and pattern grind for simple parts. Say what you need and get a model to refine instead of a blank canvas.</p>
+      <p class="section-lead">We only succeed when the part you get is the part you meant.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES PREVIEW -->
+<section class="section feat-preview">
+  <div class="container">
+    <div class="center reveal">
+      <p class="eyebrow">Describe · Generate · Export</p>
+      <h2 class="section-title">Everything between<br>prompt and part</h2>
+    </div>
+
+    <div class="feat-grid">
+      {% for f in features %}
+      <article class="feat-card reveal">
+        <div class="feat-icon">{{ forloop.counter }}</div>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.text }}</p>
+        <a href="{% url 'features' %}" class="feat-link">{{ f.cta }} <span aria-hidden="true">→</span></a>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="center reveal" style="margin-top:48px">
+      <a href="{% url 'features' %}" class="btn btn-outline">All features</a>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="section ba">
+  <div class="container ba-grid">
+    <div class="ba-card reveal">
+      <h3>Before Friday</h3>
+      <ul>
+        <li>Simple parts still mean many clicks across sketch and feature tools</li>
+        <li>A steep learning curve before you can model anything</li>
+        <li>Dimension mistakes show up late, when something fails to rebuild</li>
+        <li>Prototyping speed is limited by how fast you can model</li>
+      </ul>
+    </div>
+    <div class="ba-card ba-after reveal">
+      <h3>After Friday</h3>
+      <ul>
+        <li>Describe the part and get a first model in one go</li>
+        <li>Friday asks about anything that is missing or unclear</li>
+        <li>Plans are validated before the model is built</li>
+        <li>Export the result and keep iterating in your usual tools</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES PREVIEW -->
+<section class="section work">
+  <div class="container">
+    <div class="work-head reveal">
+      <div>
+        <p class="eyebrow">Examples</p>
+        <h2 class="section-title">What you can ask for</h2>
+      </div>
+      <a href="{% url 'examples' %}" class="btn btn-outline">View all examples</a>
+    </div>
+
+    {% for e in examples %}
+    <article class="case reveal {% cycle '' 'case-flip' %}">
+      <div class="case-body">
+        <span class="case-tags">{{ e.tags }}</span>
+        <h3>{{ e.name }}</h3>
+        <p>{{ e.summary }}</p>
+        <div class="chips case-chips">
+          {% for op in e.ops %}<span class="chip">{{ op }}</span>{% endfor %}
+        </div>
+        <a href="{% url 'try' %}?prompt={{ e.prompt|urlencode }}" class="btn btn-outline case-btn">Try this prompt</a>
+      </div>
+      <div class="case-media">
+        <div class="term"><p>{{ e.prompt }}</p></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="container stats-grid">
+    <div><strong><span data-count="5">0</span></strong><span>Pipeline stages, prompt to file</span></div>
+    <div><strong><span data-count="2">0</span></strong><span>Validation layers: schema and geometry</span></div>
+    <div><strong><span data-count="3">0</span></strong><span>Steps for you: describe, answer, download</span></div>
+    <div><strong><span data-count="1">0</span></strong><span>Sentence is enough to start</span></div>
+  </div>
+</section>
+
+{% endblock %}

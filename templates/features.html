@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Features | Friday{% endblock %}
+{% block meta_description %}From plain-English input to validated, exportable CAD: what Friday does at each step.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/features.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow reveal">Features</p>
+    <h1 class="page-title reveal">Everything between prompt and part.</h1>
+    <p class="section-lead reveal">Each step of the pipeline exists to make sure the model you download is the one you described.</p>
+  </div>
+</section>
+
+<section class="section feat-list">
+  <div class="container">
+    {% for f in features %}
+    <article class="feat-row reveal">
+      <span class="feat-index">0{{ forloop.counter }}</span>
+      <div class="feat-main">
+        <h2>{{ f.title }}</h2>
+        <p>{{ f.text }}</p>
+      </div>
+      <a href="{% url 'try' %}" class="btn btn-outline">{{ f.cta }}</a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner reveal">
+    <h2>Want to see it work?</h2>
+    <a href="{% url 'try' %}" class="btn btn-light">Try it out</a>
+  </div>
+</section>
+
+{% endblock %}

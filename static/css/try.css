@@ -1,0 +1,72 @@
+/* Friday — try.css */
+.try-hero { padding-bottom: 8px; }
+.try-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+
+.try-panel, .try-output { background: #fff; border-radius: var(--radius-card); padding: clamp(22px, 3.5vw, 40px); }
+.try-panel { position: sticky; top: calc(var(--header-h) + 16px); }
+
+.try-label { display: block; font-weight: 600; margin-bottom: 10px; }
+#prompt {
+  width: 100%; font: 400 1rem/1.6 var(--font); color: var(--ink); resize: vertical;
+  padding: 16px 18px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg);
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+#prompt:focus { outline: none; border-color: var(--ink); background: #fff; box-shadow: 0 0 0 4px rgba(0, 0, 0, .06); }
+.try-hint { margin: 18px 0 10px; font-size: .85rem; color: var(--ink-3); }
+
+.clarify { margin-top: 24px; padding: 20px; border-radius: 14px; background: var(--bg); border: 1px dashed #bdbdbd; }
+.clarify h3 { font-size: 1.05rem; margin-bottom: 14px; }
+.clarify label { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; color: var(--ink-2); margin-bottom: 14px; }
+.clarify input {
+  font: 400 1rem var(--font); padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff;
+}
+.clarify input:focus { outline: none; border-color: var(--ink); }
+
+.try-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; align-items: center; }
+.try-actions .btn[disabled] { opacity: .6; cursor: progress; transform: none; box-shadow: none; }
+
+/* pipeline progress */
+.pipeline { display: grid; gap: 4px; margin-bottom: 24px; }
+.pipeline li {
+  display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 12px;
+  color: var(--ink-3); font-weight: 500; transition: background .25s, color .25s;
+}
+.pipeline li span {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid #cfcfcf; flex: none; position: relative;
+  transition: background .25s, border-color .25s;
+}
+.pipeline li.active { background: var(--bg); color: var(--ink); }
+.pipeline li.active span { border-color: var(--ink); border-top-color: transparent; animation: spin .8s linear infinite; }
+.pipeline li.done { color: var(--ink); }
+.pipeline li.done span { background: var(--ink); border-color: var(--ink); }
+.pipeline li.done span::after {
+  content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.pipeline li.fail span { background: #b3261e; border-color: #b3261e; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.viewport {
+  min-height: 220px; border-radius: 18px; border: 1.5px dashed #cfcfcf; background: var(--bg);
+  display: grid; place-items: center; align-content: center; gap: 12px; color: #a5a5a5; text-align: center; padding: 24px;
+}
+.viewport p { font-size: .9rem; }
+.viewport.ready { border-style: solid; border-color: var(--ink); color: var(--ink); }
+
+.try-error { margin-top: 18px; padding: 14px 18px; border-radius: 14px; background: #fdecea; color: #7a1712; font-size: .95rem; }
+
+.result { margin-top: 24px; }
+.result-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.result-head h3 { font-size: 1.15rem; }
+.result-head .btn { padding: 12px 22px; }
+.result-msg { color: var(--ink-2); font-size: .9rem; margin-bottom: 12px; }
+#ops {
+  margin: 0; max-height: 320px; overflow: auto; padding: 18px 20px; border-radius: 14px; background: var(--ink); color: #eaeaea;
+  font: 400 .82rem/1.65 "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+@media (max-width: 920px) {
+  .try-grid { grid-template-columns: 1fr; }
+  .try-panel { position: static; }
+}
+@media (prefers-reduced-motion: reduce) { .pipeline li.active span { animation: none; } }

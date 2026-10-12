@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'signup' %}Sign up{% else %}Log in{% endif %} | Friday{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="section auth">
+  <div class="container auth-wrap">
+    <div class="auth-card reveal">
+
+      <div class="auth-tabs" role="tablist">
+        <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="{% if mode == 'login' %}on{% endif %}" role="tab">Log in</a>
+        <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="{% if mode == 'signup' %}on{% endif %}" role="tab">Sign up</a>
+      </div>
+
+      <h1>{% if mode == 'signup' %}Create your account{% else %}Welcome back{% endif %}</h1>
+      <p class="auth-sub">
+        {% if mode == 'signup' %}Save your work and come back to your models.{% else %}Log in to pick up where you left off.{% endif %}
+      </p>
+
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        {% if form.non_field_errors %}
+        <ul class="auth-errors">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+
+        {% for field in form %}
+        <label for="{{ field.id_for_label }}">
+          {{ field.label }}
+          {{ field }}
+          {% if field.errors %}<span class="field-err">{{ field.errors|join:" " }}</span>{% endif %}
+          {% if mode == 'signup' and field.help_text %}<small>{{ field.help_text|safe }}</small>{% endif %}
+        </label>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-dark btn-lg">{% if mode == 'signup' %}Sign up{% else %}Log in{% endif %}</button>
+      </form>
+
+      <p class="auth-alt">
+        {% if mode == 'signup' %}Already have an account? <a href="{% url 'login' %}">Log in</a>
+        {% else %}New here? <a href="{% url 'signup' %}">Create an account</a>{% endif %}
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

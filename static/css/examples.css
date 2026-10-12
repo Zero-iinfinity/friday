@@ -1,0 +1,16 @@
+/* Friday — examples.css */
+.ex-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+.ex-card {
+  background: #fff; border-radius: var(--radius-card); padding: 20px;
+  display: flex; flex-direction: column; gap: 24px;
+  transition: transform .35s var(--ease), box-shadow .35s;
+}
+.ex-card:hover { transform: translateY(-6px); box-shadow: 0 28px 56px rgba(0, 0, 0, .1); }
+.ex-card .term { min-height: 150px; }
+.ex-body { padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.ex-tags { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.ex-body h2 { font-size: 1.7rem; }
+.ex-body > p { color: var(--ink-2); flex: 1; }
+.ex-btn { align-self: flex-start; margin-top: 8px; }
+
+@media (max-width: 820px) { .ex-grid { grid-template-columns: 1fr; } }

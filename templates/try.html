@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Try it out | Friday{% endblock %}
+{% block meta_description %}Describe a part in plain English and watch Friday turn it into a CAD model.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/try.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="page-hero try-hero">
+  <div class="container">
+    <p class="eyebrow reveal">Try it out</p>
+    <h1 class="page-title reveal">Describe a part.<br>Get a model.</h1>
+  </div>
+</section>
+
+<section class="section try">
+  <div class="container try-grid">
+
+    <!-- INPUT -->
+    <div class="try-panel">
+      <form id="tryForm" data-endpoint="{% url 'try_generate' %}" novalidate>
+        {% csrf_token %}
+
+        <label for="prompt" class="try-label">What do you want to build?</label>
+        <textarea id="prompt" name="prompt" rows="7" maxlength="2000"
+          placeholder="e.g. An 80 x 50 x 6 mm mounting plate with four 5 mm holes, 8 mm in from each corner."></textarea>
+
+        <p class="try-hint">Need an idea? Click one:</p>
+        <div class="chips" id="examplePrompts">
+          {% for e in examples %}
+          <button type="button" class="chip" data-prompt="{{ e.prompt }}">{{ e.name }}</button>
+          {% endfor %}
+        </div>
+
+        <!-- Filled in when Friday needs more detail -->
+        <div class="clarify" id="clarify" hidden>
+          <h3>A few quick questions</h3>
+          <div id="clarifyFields"></div>
+        </div>
+
+        <div class="try-actions">
+          <button type="submit" class="btn btn-dark btn-lg" id="genBtn">Generate model <span class="arrow" aria-hidden="true">→</span></button>
+          <button type="button" class="btn btn-outline" id="resetBtn">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="try-output" aria-live="polite">
+      <ol class="pipeline" id="pipeline">
+        <li data-step="clarify"><span></span>Understand &amp; clarify</li>
+        <li data-step="generate"><span></span>Generate operations</li>
+        <li data-step="validate"><span></span>Validate schema &amp; geometry</li>
+        <li data-step="build"><span></span>Build model</li>
+        <li data-step="export"><span></span>Export file</li>
+      </ol>
+
+      <div class="viewport" id="viewport">
+        <svg viewBox="0 0 120 120" width="96" height="96" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M60 12 104 36v48L60 108 16 84V36L60 12Z"/><path d="M16 36 60 60l44-24M60 60v48"/>
+        </svg>
+        <p id="viewportText">Your model will show up here.</p>
+      </div>
+
+      <p class="try-error" id="tryError" hidden></p>
+
+      <div class="result" id="result" hidden>
+        <div class="result-head">
+          <h3>Generated operations</h3>
+          <a href="#" class="btn btn-dark" id="downloadBtn" hidden download>Download model</a>
+        </div>
+        <p class="result-msg" id="resultMsg"></p>
+        <pre id="ops"></pre>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/try.js' %}"></script>
+{% endblock %}

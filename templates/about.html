@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us | Friday{% endblock %}
+{% block meta_description %}Friday is a text-to-CAD project that turns plain-English descriptions into validated, exportable models.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow reveal">About Us</p>
+    <h1 class="page-title reveal">We turn words into geometry.</h1>
+    <p class="section-lead reveal">Friday is a text-to-CAD AI. You describe a part, we work out the operations, check them, build the model and hand you a file.</p>
+  </div>
+</section>
+
+<section class="section about-story">
+  <div class="container story-grid">
+    <div class="story-media reveal" aria-hidden="true"><span>F</span></div>
+    <div class="reveal">
+      <h2 class="section-title">Accuracy is everything.</h2>
+      <p class="section-lead">A CAD model that looks right but has the wrong dimensions is worse than none. So the language model never draws geometry directly: it produces a structured plan, and that plan is validated before anything is built.</p>
+      <p class="section-lead">Under the hood, a pipeline clarifies your request, generates the operations, validates the schema and geometry, builds the model, and exports it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section values">
+  <div class="container">
+    <h2 class="section-title center reveal">What we stand for</h2>
+    <div class="values-grid">
+      {% for v in values %}
+      <article class="value reveal">
+        <span>0{{ forloop.counter }}</span>
+        <h3>{{ v.title }}</h3>
+        <p>{{ v.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section process">
+  <div class="container">
+    <div class="center reveal">
+      <p class="eyebrow">How it works</p>
+      <h2 class="section-title">Clear input.<br>Checked plan.<br>Exportable result.</h2>
+    </div>
+    <ol class="steps">
+      <li class="reveal"><b>1</b><div><h3>Describe</h3><p>Write what you want in plain English: shapes, sizes, holes, patterns.</p></div></li>
+      <li class="reveal"><b>2</b><div><h3>Clarify</h3><p>If a dimension or intent is missing, Friday asks a short question instead of guessing.</p></div></li>
+      <li class="reveal"><b>3</b><div><h3>Generate</h3><p>The model turns your request into an ordered list of CAD operations.</p></div></li>
+      <li class="reveal"><b>4</b><div><h3>Validate &amp; export</h3><p>The plan is checked, the model is built, and you download the result.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner reveal">
+    <h2>Ready to build something?</h2>
+    <a href="{% url 'try' %}" class="btn btn-light">Try it out</a>
+  </div>
+</section>
+
+{% endblock %}
