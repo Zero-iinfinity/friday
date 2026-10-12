@@ -4,16 +4,18 @@
 {% block title %}Edit profile | Friday{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<!-- FIX 1: Point to profile_edit.css -->
+<link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="profile-section">
+<!-- FIX 2: Use the wrapper classes defined in profile_edit.css -->
+<section class="profile-page">
   <div class="container">
-    <div class="profile-card">
-      <h1 class="profile-name" style="text-align:center;margin-bottom:24px;">Edit Profile</h1>
+    <div class="profile-edit-container">
+      <h1>Edit Profile</h1>
 
-      <form method="post" enctype="multipart/form-data" action="{% url 'profile_edit' %}">
+      <form method="post" enctype="multipart/form-data" action="{% url 'profile_edit' %}" class="profile-form">
         {% csrf_token %}
 
         {{ uform.non_field_errors }}
@@ -55,9 +57,10 @@
           {{ pform.tech_stack.errors }}
         </p>
 
-        <div class="profile-actions">
+        <!-- FIX 3: Update action buttons class and use type="submit" -->
+        <div class="profile-form-actions">
           <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
-          <a href="{% url 'try' %}" class="btn btn-dark">Save Changes</a>
+          <button type="submit" class="btn btn-dark">Save Changes</button>
         </div>
       </form>
     </div>

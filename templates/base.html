@@ -58,7 +58,7 @@
         {% if user.is_authenticated %}
         <!-- Moved Profile Avatar here -->
         <a href="{% url 'profile' %}" class="nav-avatar" aria-label="Your profile">
-          <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/default-avatar.jpg' %}{% endif %}" alt="">
+          <img src="{{ request.user.profile.avatar_url }}" alt="Profile">
         </a>
         {% endif %}
 

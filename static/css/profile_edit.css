@@ -3,14 +3,24 @@
    ========================================================== */
 
 /* Fills the screen under the header so the footer starts below the fold */
+/* ==========================================================
+   Profile Edit Form Styles
+   ========================================================== */
+
+/* Fills the screen under the header so the footer starts below the fold */
 .profile-page {
+  /* FIX: Added the minus sign with spaces for the calc() function */
   min-height: calc(100vh - var(--header-h));
   padding: clamp(32px, 6vw, 72px) 0;
   display: flex;
   align-items: flex-start;
 }
-.profile-page .container { display: flex; justify-content: center; }
+.profile-page .container { 
+  display: flex; 
+  justify-content: center; 
+}
 
+/* The rest of your CSS remains the same... */
 .profile-edit-container {
   width: min(600px, 100%);
   padding: clamp(24px, 4vw, 44px);
@@ -22,6 +32,7 @@
 
 .profile-edit-container h1 { font-size: 2rem; text-align: center; }
 .profile-sub { text-align: center; color: var(--ink-2); margin: 8px 0 28px; }
+
 
 .profile-warn {
   margin-bottom: 24px; padding: 14px 18px; border-radius: 14px;

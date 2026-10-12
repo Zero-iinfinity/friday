@@ -1,105 +1,42 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Edit Profile | Friday{% endblock %}
+{% block title %}Profile | Friday{% endblock %}
 
 {% block extra_css %}
-<style>
-  .profile-edit-container {
-    max-width: 600px;
-    margin: 64px auto;
-    padding: 40px;
-    background: var(--bg-2);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  }
-
-  .profile-edit-container h1 {
-    font-size: 2rem;
-    margin-bottom: 32px;
-    text-align: center;
-  }
-
-  /* Force Django's <p> wrappers to stack label and input vertically */
-  .profile-form p {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .profile-form label {
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: var(--ink-2);
-  }
-
-  /* Style all inputs and textareas */
-  .profile-form input[type="text"],
-  .profile-form input[type="email"],
-  .profile-form input[type="url"],
-  .profile-form input[type="file"],
-  .profile-form textarea {
-    padding: 12px 16px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font-family: var(--font);
-    font-size: 1rem;
-    background: var(--bg);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-  }
-
-  .profile-form textarea {
-    resize: vertical;
-    min-height: 120px;
-  }
-
-  .profile-form input:focus,
-  .profile-form textarea:focus {
-    outline: none;
-    border-color: var(--ink);
-    box-shadow: 0 0 0 3px rgba(11, 11, 11, 0.1);
-    background: var(--bg-2);
-  }
-  
-  /* Fix inline checkbox for avatar clearing */
-  .profile-form input[type="checkbox"] {
-    width: auto;
-    display: inline-block;
-    margin-left: 8px;
-  }
-
-  .profile-form .helptext {
-    font-size: 0.8rem;
-    color: var(--ink-3);
-    margin-top: -4px;
-  }
-
-  .profile-form-actions {
-    margin-top: 40px;
-    display: flex;
-    justify-content: flex-end;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="profile-edit-container">
-    <h1>Edit Profile</h1>
-    
-    <form method="post" enctype="multipart/form-data" class="profile-form">
-      {% csrf_token %}
-      
-      {{ uform.as_p }}
-      {{ pform.as_p }}
-      
-      <div class="profile-form-actions">
-        <a href="{% url 'home' %}" class="btn btn-outline" style="margin-right: 12px;">Cancel</a>
-        <a href="{% url 'try' %}" class="btn btn-dark">Save Changes</a>
+<section class="profile-section">
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-image-wrapper">
+          <img src="{{ profile.avatar_url }}" alt="Avatar" class="profile-image">
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+          <p class="profile-handle">@{{ request.user.username }}</p>
+          <p class="profile-bio">{{ profile.bio|default:"No bio provided yet." }}</p>
+        </div>
       </div>
-    </form>
+
+      {% if profile.tech_list %}
+      <div class="profile-tech">
+        <h3 class="tech-title">Tech Stack</h3>
+        <div class="tech-chips">
+          {% for tech in profile.tech_list %}
+            <span class="chip">{{ tech }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="profile-actions" style="margin-top: 32px;">
+        <a href="{% url 'profile_edit' %}" class="btn btn-dark">Edit Profile</a>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

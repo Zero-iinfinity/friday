@@ -156,19 +156,29 @@ def logout_view(request):
     logout(request)
     return redirect("home")
 
+
 @login_required
 def profile(request):
     p, _ = Profile.objects.get_or_create(user=request.user)
     return render(request, "profile.html", {"profile": p})
 
 
+# pages/views.py
+
 @login_required
 def profile_edit(request):
-    p, _ = Profile.objects.get_or_create(user=request.user)
-    uform = UserNamesForm(request.POST or None, instance=request.user)
-    pform = ProfileForm(request.POST or None, request.FILES or None, instance=p)
-    if request.method == "POST" and uform.is_valid() and pform.is_valid():
-        uform.save()
-        pform.save()
-        return redirect("profile")
-    return render(request, "profile_edit.html", {"uform": uform, "pform": pform})
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        uform = UserNamesForm(request.POST, instance=request.user)
+        pform = ProfileForm(request.POST, request.FILES, instance=profile)
+        if uform.is_valid() and pform.is_valid():
+            uform.save()
+            pform.save()
+            return redirect("profile")
+        # if invalid, fall through and re-render with errors
+    else:
+        uform = UserNamesForm(instance=request.user)
+        pform = ProfileForm(instance=profile)
+
+    return render(request, "profile_edit.html", {"uform": uform, "pform": pform, "profile": profile})
